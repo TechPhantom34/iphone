@@ -1,4 +1,4 @@
-name: Root Dizine Unzip İşlemi
+name: Root Dizine Unzip İşlemi yapma
 
 on:
   push:
