@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         pod repo update
-        cd FlappyBird
+        cd Flappy Bird
         pod install
       continue-on-error: true
     
