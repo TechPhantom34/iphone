@@ -10,7 +10,7 @@ workflows:
         script: |
           cd "Flappy Bird"
           xcode-project build-ipa \
-            --project FlappyBird.xcodeproj \
+            --project Flappy Bird.xcodeproj \
             --scheme FlappyBird
     artifacts:
       - build/ios/ipa/*.ipa
