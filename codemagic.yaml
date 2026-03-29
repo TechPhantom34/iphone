@@ -12,6 +12,5 @@ workflows:
           xcode-project build-ipa \
             --project Flappy Bird.xcodeproj \
             --scheme FlappyBird \
-            --skip-clean
     artifacts:
       - build/ios/ipa/*.ipa
