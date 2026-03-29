@@ -1,0 +1,95 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Select Xcode version
+      run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+    
+    - name: Install dependencies
+      run: |
+        pod repo update
+        cd FlappyBird
+        pod install
+      continue-on-error: true
+    
+    - name: Build iOS App
+      run: |
+        xcodebuild clean build \
+          -workspace FlappyBird.xcworkspace \
+          -scheme FlappyBird \
+          -configuration Release \
+          -derivedDataPath build \
+          -verbose
+      env:
+        DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+    
+    - name: Create Archive
+      run: |
+        xcodebuild -archivePath build/FlappyBird.xcarchive \
+          -workspace FlappyBird.xcworkspace \
+          -scheme FlappyBird \
+          -configuration Release \
+          archive
+    
+    - name: Export IPA
+      run: |
+        mkdir -p build/ipa
+        xcodebuild -exportArchive \
+          -archivePath build/FlappyBird.xcarchive \
+          -exportPath build/ipa \
+          -exportOptionsPlist ExportOptions.plist
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: FlappyBird-build
+        path: build/
+        retention-days: 30
+    
+    - name: Create Release and Upload IPA
+      if: success()
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build/ipa/*.ipa
+        tag_name: v${{ github.run_number }}
+        name: "FlappyBird Build #${{ github.run_number }}"
+        body: |
+          🐦 **Flappy Bird iOS Build**
+          
+          Build #${{ github.run_number }}
+          Tarih: ${{ github.event.head_commit.timestamp }}
+          
+          **İndir:**
+          - IPA dosyası altında bulunur
+          - AltStore EU veya Sideloadly ile yükle
+          
+          **Changelog:**
+          - Google Publisher Tag rewarded ads entegre
+          - 5. ölümde otomatik reklam gösteriş
+          - Console.log callbacks: Ad started, Ad finish, Ad fail
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build Status Success
+      if: success()
+      run: echo "✅ Build başarılı! IPA Releases'e yüklendi."
+    
+    - name: Build Status Failed
+      if: failure()
+      run: echo "❌ Build başarısız. Log'u kontrol et."
+
