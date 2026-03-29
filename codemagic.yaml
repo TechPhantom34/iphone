@@ -1,0 +1,32 @@
+workflows:
+  ios-workflow:
+    name: iOS Build
+    max_build_duration: 120
+    instance_type: mac_mini_m1
+    environment:
+      xcode: latest
+    scripts:
+      - name: Install pods
+        script: |
+          cd "Flappy Bird"
+          pod install
+        ignore_failure: true
+
+      - name: Build
+        script: |
+          cd "Flappy Bird"
+          xcode-project build-ipa \
+            --workspace FlappyBird.xcworkspace \
+            --scheme FlappyBird
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      email:
+        recipients:
+          - qwerty19741971@outlook.com
+        notify:
+          success: true
+          failure: true
