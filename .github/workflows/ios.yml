@@ -1,28 +1,31 @@
-name: iOS Build
+name: iOS Build Factory
 
 on:
   push:
-    branches: [ main ] # Kodları hangi branch'e atıyorsanız (main/master)
+    branches: [ main ] # Kodları hangi branch'e atıyorsanız (main veya master)
 
 jobs:
   build:
     runs-on: macos-latest
-    # TÜM KOMUTLARI BU KLASÖRDE ÇALIŞTIRIR
+    
     defaults:
       run:
-        working-directory: "Flappy Bird" 
+        # Boşluklu klasör adınızı tırnak içine aldık
+        working-directory: "Flappy Bird"
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Xcode Build
+      - name: Build Archive
         run: |
-          # Proje dosyanızın adı neyse onu yazın
-          xcodebuild -project "Flappy Bird.xcodeproj" \
-                     -scheme "Flappy Bird" \
-                     -configuration Release \
-                     -sdk iphoneos \
-                     archive \
-                     -archivePath "./Flappy Bird.xcarchive" \
-                     CODE_SIGNING_ALLOWED=NO
+          # Proje adı ve Arşiv adı boşluklu olduğu için çift tırnak şart
+          xcodebuild archive \
+            -project "Flappy Bird.xcodeproj" \
+            -scheme "Flappy Bird" \
+            -archivePath "./Flappy Bird.xcarchive" \
+            -sdk iphoneos \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
